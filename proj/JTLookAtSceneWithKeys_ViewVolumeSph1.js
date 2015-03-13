@@ -37,7 +37,7 @@ var VSHADER_SOURCE =
     // Set the CVV coordinate values from our given vertex. This 'built-in'
     // per-vertex value gets interpolated to set screen position for each pixel.
   //'  gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n' +
-      '  gl_Position = u_ProjMatrix * u_ModelMatrix * a_Position;\n' +
+      '  gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n' +
      // Calculate the vertex position & normal in the WORLD coordinate system
      // and then save as 'varying', so that fragment shaders each get per-pixel
      // values (interp'd between vertices for our drawing primitive (TRIANGLE)).
@@ -65,10 +65,10 @@ var FSHADER_SOURCE =
   'uniform vec3 u_Lamp0Spec;\n' +     // Phong Illum: specular
 
   // headlight light source
-  'uniform vec4 u_Lamp1Pos;\n' +      // Phong Illum: position
-  'uniform vec3 u_Lamp1Amb;\n' +      // Phong Illum: ambient
-  'uniform vec3 u_Lamp1Diff;\n' +     // Phong Illum: diffuse
-  'uniform vec3 u_Lamp1Spec;\n' +     // Phong Illum: specular
+  //'uniform vec4 u_Lamp1Pos;\n' +      // Phong Illum: position
+  //'uniform vec3 u_Lamp1Amb;\n' +      // Phong Illum: ambient
+  //'uniform vec3 u_Lamp1Diff;\n' +     // Phong Illum: diffuse
+  //'uniform vec3 u_Lamp1Spec;\n' +     // Phong Illum: specular
   
   // first material definition: you write 2nd, 3rd, etc.
   'uniform vec3 u_Ke;\n' +              // Phong Reflectance: emissive
@@ -89,7 +89,7 @@ var FSHADER_SOURCE =
       // Normalize! interpolated normals aren't 1.0 in length any more
   '  vec3 normal = normalize(v_Normal); \n' +
       // Calculate the light direction vector, make it unit-length (1.0).
-  '  vec3 lightDirection = normalize(u_Lamp1Pos.xyz + u_Lamp0Pos.xyz - v_Position.xyz);\n' +
+  '  vec3 lightDirection = normalize(u_Lamp0Pos.xyz - v_Position.xyz);\n' +
       // The dot product of the light direction and the normal
       // (use max() to discard any negatives from lights below the surface)
   '  float nDotL = max(dot(lightDirection, normal), 0.0); \n' +
@@ -111,9 +111,9 @@ var FSHADER_SOURCE =
   '  float e64 = e32*e32; \n' +
       // Calculate the final color from diffuse reflection and ambient reflection
   '  vec3 emissive = u_Ke;' +
-  '  vec3 ambient = (u_Lamp1Amb + u_Lamp0Amb) * u_Ka;\n' +
-  '  vec3 diffuse = (u_Lamp1Diff + u_Lamp0Diff) * v_Kd * nDotL;\n' +
-  '  vec3 speculr = (u_Lamp1Spec + u_Lamp0Spec) * u_Ks * e64 * e64;\n' +
+  '  vec3 ambient = (u_Lamp0Amb) * u_Ka;\n' +
+  '  vec3 diffuse = (u_Lamp0Diff) * v_Kd * nDotL;\n' +
+  '  vec3 speculr = (u_Lamp0Spec) * u_Ks * e64 * e64;\n' +
   '  gl_FragColor = vec4(emissive + ambient + diffuse + speculr , 1.0);\n' +
   '}\n';
 
@@ -200,14 +200,14 @@ function main() {
   }
 
   // Headlight Light Source
-  var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
-  var u_Lamp1Amb  = gl.getUniformLocation(gl.program,   'u_Lamp1Amb');
-  var u_Lamp1Diff = gl.getUniformLocation(gl.program,   'u_Lamp1Diff');
-  var u_Lamp1Spec = gl.getUniformLocation(gl.program,   'u_Lamp1Spec');
-  if( !u_Lamp1Pos || !u_Lamp1Amb  ) {//|| !u_Lamp0Diff  ) { // || !u_Lamp0Spec  ) {
-    console.log('Failed to get the Lamp0 storage locations');
-    return;
-  }
+  // var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
+  // var u_Lamp1Amb  = gl.getUniformLocation(gl.program,   'u_Lamp1Amb');
+  // var u_Lamp1Diff = gl.getUniformLocation(gl.program,   'u_Lamp1Diff');
+  // var u_Lamp1Spec = gl.getUniformLocation(gl.program,   'u_Lamp1Spec');
+  // if( !u_Lamp1Pos || !u_Lamp1Amb  ) {//|| !u_Lamp0Diff  ) { // || !u_Lamp0Spec  ) {
+  //   console.log('Failed to get the Lamp0 storage locations');
+  //   return;
+  // }
 
   // ... for Phong material/reflectance:
   u_Ke = gl.getUniformLocation(gl.program, 'u_Ke');
@@ -239,12 +239,12 @@ function main() {
   gl.uniform3f(u_Lamp0Spec, 1.0, 1.0, 1.0);   // Specular
 
 
-  // Position the second light Source in World coords:
-  gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
-  // Set its light output:  
-  gl.uniform3f(u_Lamp1Amb,  0.4, 0.4, 0.4);   // ambient
-  gl.uniform3f(u_Lamp1Diff, 1.0, 1.0, 1.0);   // diffuse
-  gl.uniform3f(u_Lamp1Spec, 1.0, 1.0, 1.0);   // Specular
+  // // Position the second light Source in World coords:
+  // gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
+  // // Set its light output:  
+  // gl.uniform3f(u_Lamp1Amb,  0.4, 0.4, 0.4);   // ambient
+  // gl.uniform3f(u_Lamp1Diff, 1.0, 1.0, 1.0);   // diffuse
+  // gl.uniform3f(u_Lamp1Spec, 1.0, 1.0, 1.0);   // Specular
 
   // Set the Phong materials' reflectance:
   gl.uniform3f(u_Ke, 0.0, 0.0, 0.0);        // Ke emissive
@@ -258,9 +258,9 @@ function main() {
   var projMatrix = new Matrix4();
   var viewMatrix = new Matrix4();
 
-  ModelMatrix.setLookAt(g_EyeX, g_EyeY, g_EyeZ,         // eye position
-                        g_EyePosX,g_EyePosY,g_EyePosZ,  // look-at point (origin) 
-                        0, 1, 0);   
+  // ModelMatrix.setLookAt(g_EyeX, g_EyeY, g_EyeZ,         // eye position
+  //                       g_EyePosX,g_EyePosY,g_EyePosZ,  // look-at point (origin) 
+  //                       0, 1, 0);   
   
   // Register the event handler to be called on key press
   document.onkeydown = function(ev){ keydown(ev, gl, u_ModelMatrix, ModelMatrix); };
@@ -861,7 +861,7 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
 
   var canvas = document.getElementById('webgl');
 
-  var ModelMatrix = new Matrix4();
+  //var ModelMatrix = new Matrix4();
 
   // Using OpenGL/ WebGL 'viewports':
   // these determine the mapping of CVV to the 'drawing context',
@@ -889,7 +889,7 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
   ModelMatrix.setLookAt(g_EyeX, g_EyeY, g_EyeZ,         // eye position
                         g_EyePosX,g_EyePosY,g_EyePosZ,  // look-at point (origin) 
                         0, 1, 0);                       // up vector (+y)
-  
+
   // Adjust lamp position
   var u_Lamp0Pos  = gl.getUniformLocation(gl.program,   'u_Lamp0Pos');
   gl.uniform4f(u_Lamp0Pos, lightXPos, lightYPos, lightZPos, 1.0);
@@ -904,13 +904,13 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
   gl.uniform3f(u_Lamp0Amb, specRedVal, specGreenVal, specBlueVal);   // Ambient
 
   // adjust headlight position
-  var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
-  gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
+  // var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
+  // gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
 
 
 
   // Pass the model matrix
-  gl.uniformMatrix4fv(u_ModelMatrix, false, ModelMatrix.elements);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, ModelMatrix.elements);
 
   // pass the view matrix
   //gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
@@ -949,10 +949,10 @@ function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
 
   // ModelMatrix.multiply(ModelMatrix);
   // Calculate the matrix to transform the normal based on the model matrix
-  normalMatrix.setInverseOf(myModelMatrix);
-  normalMatrix.transpose();
+  //normalMatrix.setInverseOf(myModelMatrix);
+  //normalMatrix.transpose();
 
-  gl.uniformMatrix4fv(u_NormalMatrix, false, normalMatrix.elements);
+  //gl.uniformMatrix4fv(u_NormalMatrix, false, normalMatrix.elements);
 //===============================================================================
 // Called ONLY from within the 'draw()' function
 // Assumes already-correctly-set View matrix and Proj matrix; 
@@ -969,6 +969,7 @@ function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
  // old one had "+y points upwards", but
  // myModelMatrix
  
+ pushMatrix(myModelMatrix);
   myModelMatrix.rotate(-90.0, 1,0,0); // new one has "+z points upwards",
                                       // made by rotating -90 deg on +x-axis.
                                       // Move those new drawing axes to the 
@@ -995,6 +996,7 @@ function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
                 gndStart/floatsPerVertex, // start at this vertex number, and
                 gndVerts.length/floatsPerVertex);   // draw this many vertices
 
+  myModelMatrix = popMatrix();
 /*
   myModelMatrix.translate(0,0,2.5);
 
@@ -1196,6 +1198,7 @@ function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
     */
   pushMatrix(myModelMatrix); // sphere
 
+  // try to create temp model
   myModelMatrix.translate(0,1.3,0);
   myModelMatrix.rotate(currentAngle,0,0,1);
   myGL.uniformMatrix4fv(myu_ModelMatrix,false,myModelMatrix.elements);
