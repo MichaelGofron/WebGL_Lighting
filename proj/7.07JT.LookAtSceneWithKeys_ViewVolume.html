@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Look triangle from slant (Move eye position and viewing volume with key)</title>
+  </head>
+
+  <body onload="main()" onresize="winResize()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-mod.js"></script>
+    <script src="JTLookAtSceneWithKeys_ViewVolume.js"></script>
+    <h3>Press up/back key to move along x/-x axis</h3>
+    <h3>Press left/right key to move along y/-y axis</h3>
+    <h3>Press the a and s keys to move along z/-z axis</h3>
+    <h3>Press down and move mouse to rotate camera perspective</h3>
+    <div>
+        <button onclick="increaseLightXPos()">Light - x++</button>
+        <button onclick="decreaseLightXPos()">Light - x--</button>
+        <button onclick="increaseLightYPos()">Light - y++</button>
+        <button onclick="decreaseLightYPos()">Light - y--</button>
+        <button onclick="increaseLightZPos()">Light - z++</button>
+        <button onclick="decreaseLightZPos()">Light - z--</button>
+    </div>
+    <div>
+            Adjust ambient red light <input type="text" id="Lamp0AmbRed"></input>
+            Adjust ambient green light <input type="text" id="Lamp0AmbGreen"></input>
+            Adjust ambient blue light <input type="text" id="Lamp0AmbBlue"></input>
+
+            Adjust diffuse light <input type="text" id="Lamp0DiffRed"></input>
+            Adjust diffuse light <input type="text" id="Lamp0DiffGreen"></input>
+            Adjust diffuse light <input type="text" id="Lamp0DiffBlue"></input>
+
+            Adjust specular light <input type="text" id="Lamp0SpecRed"></input>
+            Adjust specular light <input type="text" id="Lamp0SpecGreen"></input>
+            Adjust specular light <input type="text" id="Lamp0SpecBlue"></input>
+            <button onclick="submitLightVars()">Submit</button>
+    </div>
+  </body>
+</html>
