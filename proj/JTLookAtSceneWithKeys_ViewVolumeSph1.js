@@ -139,6 +139,7 @@ var lightYPos = 6.0;
 var lightZPos = 0.0;
 var lightPosDifference = 20.0;
 
+var timesLogged = 0;
 
 // Use model, view, projection matrix
 function main() {
@@ -275,7 +276,7 @@ function main() {
   // with this perspective-camera matrix:
   // (SEE PerspectiveView.js, Chapter 7 of book)
 
-  projMatrix.setPerspective(40, (canvas.width/2)/canvas.height, 1, 100);
+  projMatrix.setPerspective(40, (canvas.width)/canvas.height, 1, 100);
 
   //viewMatrix.multiply(ModelMatrix); // mvpMatrix * modelMatrix
 
@@ -326,7 +327,7 @@ function main() {
 }
 
 var cubeVerts = [];
-var numCubes = 18;
+var numCubes = 1;
 var cubeVertsToDraw = 0;
 
 // set up new object
@@ -599,6 +600,8 @@ function initVertexBuffers(gl) {
   makeCube(); // another robot joint
   */
 
+  makeCube(); // light source
+
   // Test Sphere
   makeSphere();
 
@@ -606,7 +609,7 @@ function initVertexBuffers(gl) {
   // How much space to store all the shapes in one array?
   // (no 'var' means this is a global variable)
   //mySiz = gndVerts.length + cubeVerts.length + sphVerts.length;
-  mySiz = sphVerts.length + gndVerts.length;
+  mySiz = sphVerts.length + gndVerts.length + cubeVerts.length;
   // How many vertices total?
   var nn = mySiz / floatsPerVertex;
   console.log('nn is', nn, 'mySiz is', mySiz, 'floatsPerVertex is', floatsPerVertex);
@@ -663,6 +666,10 @@ function initVertexBuffers(gl) {
   gndStart = i;
   for (j = 0; j < gndVerts.length; j++, i++){
     verticesColors[i] = gndVerts[j];
+  }
+  cubeVertStart = i;
+  for (j=0; j<cubeVerts.length; j++,i++){
+    verticesColors[i] = cubeVerts[j];
   }
 
 
@@ -885,8 +892,12 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
   var pAspect = ((gl.drawingBufferWidth/2) / gl.drawingBufferHeight);
               
   // Set the matrix to be used for to set the camera view
+  var projMatrix = new Matrix4();
+  projMatrix.setPerspective(40, (canvas.width)/canvas.height, 1, 100);
+  gl.uniformMatrix4fv(u_ProjMatrix,false,projMatrix.elements);
 
-  ModelMatrix.setLookAt(g_EyeX, g_EyeY, g_EyeZ,         // eye position
+  var viewMatrix = new Matrix4();
+  viewMatrix.setLookAt(g_EyeX, g_EyeY, g_EyeZ,         // eye position
                         g_EyePosX,g_EyePosY,g_EyePosZ,  // look-at point (origin) 
                         0, 1, 0);                       // up vector (+y)
 
@@ -910,7 +921,7 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
 
 
   // Pass the model matrix
-  gl.uniformMatrix4fv(u_ViewMatrix, false, ModelMatrix.elements);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 
   // pass the view matrix
   //gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
@@ -942,11 +953,14 @@ function animate(angle){
   return newAngle %= 360;
 }
 
+var firstLightMov = true;
+
 // Must have different objects
 function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
 
   normalMatrix = new Matrix4();
-
+  myModelMatrix = new Matrix4();
+  //console.log(myModelMatrix);
   // ModelMatrix.multiply(ModelMatrix);
   // Calculate the matrix to transform the normal based on the model matrix
   //normalMatrix.setInverseOf(myModelMatrix);
@@ -970,10 +984,18 @@ function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
  // myModelMatrix
  
  pushMatrix(myModelMatrix);
+ if(timesLogged < 2){
+  console.log(myModelMatrix.elements);
+ }
   myModelMatrix.rotate(-90.0, 1,0,0); // new one has "+z points upwards",
                                       // made by rotating -90 deg on +x-axis.
                                       // Move those new drawing axes to the 
                                       // bottom of the trees:
+if(timesLogged < 2){
+  console.log(myModelMatrix.elements);
+  //timesLogged++;
+}
+
   myGL.uniformMatrix4fv(myu_ModelMatrix, false, myModelMatrix.elements);
 
  /*
@@ -1212,6 +1234,21 @@ function drawMyScene(myGL, myu_ModelMatrix, myModelMatrix) {
                   sphStart/floatsPerVertex,
                   sphVerts.length/floatsPerVertex);
   myModelMatrix = popMatrix();
+
+
+  pushMatrix(myModelMatrix); // sphere source of light
+  myModelMatrix.translate(lightXPos,lightYPos,lightZPos);
+
+  myModelMatrix.scale(0.5,0.5,0.5);
+  myGL.uniformMatrix4fv(myu_ModelMatrix,false,myModelMatrix.elements);
+  myGL.drawArrays(myGL.TRIANGLE_STRIP,
+                  sphStart/floatsPerVertex,
+                  sphVerts.length/floatsPerVertex);
+  myModelMatrix = popMatrix();
+
+if(timesLogged < 2)
+  console.log(myModelMatrix.elements);
+timesLogged++;
 
 }
 
