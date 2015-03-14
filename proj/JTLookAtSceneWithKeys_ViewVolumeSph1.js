@@ -235,9 +235,9 @@ function main() {
   // Position the first light source in World coords: 
   gl.uniform4f(u_Lamp0Pos, lightXPos, lightYPos, lightZPos, 1.0);
   // Set its light output:  
-  gl.uniform3f(u_Lamp0Amb,  0.4, 0.4, 0.4);   // ambient
-  gl.uniform3f(u_Lamp0Diff, 1.0, 1.0, 1.0);   // diffuse
-  gl.uniform3f(u_Lamp0Spec, 1.0, 1.0, 1.0);   // Specular
+  gl.uniform3f(u_Lamp0Amb,  ambRedVal, ambGreenVal, ambBlueVal);   // ambient
+  gl.uniform3f(u_Lamp0Diff, difRedVal, difGreenVal, difBlueVal);   // diffuse
+  gl.uniform3f(u_Lamp0Spec, specRedVal, specGreenVal, specBlueVal);   // Specular
 
 
   // // Position the second light Source in World coords:
@@ -912,7 +912,7 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
 
   gl.uniform3f(u_Lamp0Amb, ambRedVal, ambGreenVal, ambBlueVal);   // Ambient
   gl.uniform3f(u_Lamp0Diff, difRedVal, difGreenVal, difBlueVal);   // Ambient
-  gl.uniform3f(u_Lamp0Amb, specRedVal, specGreenVal, specBlueVal);   // Ambient
+  gl.uniform3f(u_Lamp0Spec, specRedVal, specGreenVal, specBlueVal);   // Ambient
 
   // adjust headlight position
   // var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
@@ -998,6 +998,10 @@ if(timesLogged < 2){
 
   myGL.uniformMatrix4fv(myu_ModelMatrix, false, myModelMatrix.elements);
 
+  var tmpMatrix = new Matrix4();
+  tmpMatrix.setInverseOf(myModelMatrix);
+  tmpMatrix.transpose();
+  gl.uniformMatrix4fv(u_NormalMatrix, false, tmpMatrix.elements);
  /*
   myModelMatrix.translate(0.0, 0.0, -0.6);  
   myModelMatrix.scale(0.4, 0.4,0.4);    // shrink the drawing axes 
