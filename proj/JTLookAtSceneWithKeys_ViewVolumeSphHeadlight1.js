@@ -763,6 +763,7 @@ function keydown(ev, gl, u_ModelMatrix, ModelMatrix) {
         g_EyePosY -= constDisp;
     }
     else { return; } // Prevent the unnecessary drawing
+    gl.uniform4f(u_eyePosWorld, g_EyeX,g_EyeY,g_EyeZ, 1); // adjust for different eye posiit
     draw(gl, u_ModelMatrix, ModelMatrix);
 }
 
