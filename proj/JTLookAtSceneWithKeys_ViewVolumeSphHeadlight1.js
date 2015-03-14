@@ -59,16 +59,16 @@ var FSHADER_SOURCE =
   '#endif\n' +
   
   // first light source: (YOU write a second one...)
-  'uniform vec4 u_Lamp0Pos;\n' +      // Phong Illum: position
-  'uniform vec3 u_Lamp0Amb;\n' +      // Phong Illum: ambient
-  'uniform vec3 u_Lamp0Diff;\n' +     // Phong Illum: diffuse
-  'uniform vec3 u_Lamp0Spec;\n' +     // Phong Illum: specular
+  // 'uniform vec4 u_Lamp0Pos;\n' +      // Phong Illum: position
+  // 'uniform vec3 u_Lamp0Amb;\n' +      // Phong Illum: ambient
+  // 'uniform vec3 u_Lamp0Diff;\n' +     // Phong Illum: diffuse
+  // 'uniform vec3 u_Lamp0Spec;\n' +     // Phong Illum: specular
 
   // headlight light source
-  // 'uniform vec4 u_Lamp1Pos;\n' +      // Phong Illum: position
-  // 'uniform vec3 u_Lamp1Amb;\n' +      // Phong Illum: ambient
-  // 'uniform vec3 u_Lamp1Diff;\n' +     // Phong Illum: diffuse
-  // 'uniform vec3 u_Lamp1Spec;\n' +     // Phong Illum: specular
+  'uniform vec4 u_Lamp1Pos;\n' +      // Phong Illum: position
+  'uniform vec3 u_Lamp1Amb;\n' +      // Phong Illum: ambient
+  'uniform vec3 u_Lamp1Diff;\n' +     // Phong Illum: diffuse
+  'uniform vec3 u_Lamp1Spec;\n' +     // Phong Illum: specular
   
   // first material definition: you write 2nd, 3rd, etc.
   'uniform vec3 u_Ke;\n' +              // Phong Reflectance: emissive
@@ -90,7 +90,7 @@ var FSHADER_SOURCE =
   '  vec3 normal = normalize(v_Normal); \n' +
       // Calculate the light direction vector, make it unit-length (1.0).
   //'  vec3 lightDirection = normalize(u_Lamp0Pos.xyz - v_Position.xyz);\n' +
-  '  vec3 lightDirection = normalize(u_Lamp0Pos.xyz - v_Position.xyz);\n' +
+  '  vec3 lightDirection = normalize(u_Lamp1Pos.xyz- v_Position.xyz);\n' +
 
       // The dot product of the light direction and the normal
       // (use max() to discard any negatives from lights below the surface)
@@ -113,9 +113,9 @@ var FSHADER_SOURCE =
   '  float e64 = e32*e32; \n' +
       // Calculate the final color from diffuse reflection and ambient reflection
   '  vec3 emissive = u_Ke;' +
-  '  vec3 ambient = (u_Lamp0Amb) * u_Ka;\n' +
-  '  vec3 diffuse = (u_Lamp0Diff) * v_Kd * nDotL;\n' +
-  '  vec3 speculr = (u_Lamp0Spec) * u_Ks * e64 * e64;\n' +
+  '  vec3 ambient = (u_Lamp1Amb) * u_Ka;\n' +
+  '  vec3 diffuse = (u_Lamp1Diff) * v_Kd * nDotL;\n' +
+  '  vec3 speculr = (u_Lamp1Spec) * u_Ks * e64 * e64;\n' +
   '  gl_FragColor = vec4(emissive + ambient + diffuse + speculr , 1.0);\n' +
   '}\n';
 
@@ -204,24 +204,24 @@ function main() {
     return;
     }
   //  ... for Phong light source:
-  var u_Lamp0Pos  = gl.getUniformLocation(gl.program,   'u_Lamp0Pos');
-  var u_Lamp0Amb  = gl.getUniformLocation(gl.program,   'u_Lamp0Amb');
-  var u_Lamp0Diff = gl.getUniformLocation(gl.program,   'u_Lamp0Diff');
-  var u_Lamp0Spec = gl.getUniformLocation(gl.program,   'u_Lamp0Spec');
-  if( !u_Lamp0Pos || !u_Lamp0Amb || !u_Lamp0Diff || !u_Lamp0Spec ) { // || !u_Lamp0Spec  )  ) {//|| !u_Lamp0Diff  ) { // || !u_Lamp0Spec  ) {
-    console.log('Failed to get the Lamp0 storage locations');
-    return;
-  }
-
-  // // Headlight Light Source
-  // var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
-  // var u_Lamp1Amb  = gl.getUniformLocation(gl.program,   'u_Lamp1Amb');
-  // var u_Lamp1Diff = gl.getUniformLocation(gl.program,   'u_Lamp1Diff');
-  // var u_Lamp1Spec = gl.getUniformLocation(gl.program,   'u_Lamp1Spec');
-  // if( !u_Lamp1Pos || !u_Lamp1Amb  ) {//|| !u_Lamp0Diff  ) { // || !u_Lamp0Spec  ) {
-  //   console.log('Failed to get the Lamp1 storage locations');
+  // var u_Lamp0Pos  = gl.getUniformLocation(gl.program,   'u_Lamp0Pos');
+  // var u_Lamp0Amb  = gl.getUniformLocation(gl.program,   'u_Lamp0Amb');
+  // var u_Lamp0Diff = gl.getUniformLocation(gl.program,   'u_Lamp0Diff');
+  // var u_Lamp0Spec = gl.getUniformLocation(gl.program,   'u_Lamp0Spec');
+  // if( !u_Lamp0Pos || !u_Lamp0Amb || !u_Lamp0Diff || !u_Lamp0Spec ) { // || !u_Lamp0Spec  )  ) {//|| !u_Lamp0Diff  ) { // || !u_Lamp0Spec  ) {
+  //   console.log('Failed to get the Lamp0 storage locations');
   //   return;
   // }
+
+  // Headlight Light Source
+  var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
+  var u_Lamp1Amb  = gl.getUniformLocation(gl.program,   'u_Lamp1Amb');
+  var u_Lamp1Diff = gl.getUniformLocation(gl.program,   'u_Lamp1Diff');
+  var u_Lamp1Spec = gl.getUniformLocation(gl.program,   'u_Lamp1Spec');
+  if( !u_Lamp1Pos || !u_Lamp1Amb  ) {//|| !u_Lamp0Diff  ) { // || !u_Lamp0Spec  ) {
+    console.log('Failed to get the Lamp1 storage locations');
+    return;
+  }
 
   // ... for Phong material/reflectance:
   u_Ke = gl.getUniformLocation(gl.program, 'u_Ke');
@@ -246,19 +246,19 @@ function main() {
   }
 
   // Position the first light source in World coords: 
-  gl.uniform4f(u_Lamp0Pos, lightXPos, lightYPos, lightZPos, 1.0);
-  // Set its light output:  
-  gl.uniform3f(u_Lamp0Amb,  ambRedVal, ambGreenVal, ambBlueVal);   // ambient
-  gl.uniform3f(u_Lamp0Diff, difRedVal, difGreenVal, difBlueVal);   // diffuse
-  gl.uniform3f(u_Lamp0Spec, specRedVal, specGreenVal, specBlueVal);   // Specular
-
-
-  // // // Position the second light Source in World coords:
-  // gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
+  // gl.uniform4f(u_Lamp0Pos, lightXPos, lightYPos, lightZPos, 1.0);
   // // Set its light output:  
-  // gl.uniform3f(u_Lamp1Amb,  headLightAmbRed, headLightAmbGreen, headLightAmbBlue);   // ambient
-  // gl.uniform3f(u_Lamp1Diff, headLightDifRed, headLightDifGreen, headLightDifBlue);   // diffuse
-  // gl.uniform3f(u_Lamp1Spec, headLightSpecRed, headLightSpecGreen, headLightSpecBlue);   // Specular
+  // gl.uniform3f(u_Lamp0Amb,  ambRedVal, ambGreenVal, ambBlueVal);   // ambient
+  // gl.uniform3f(u_Lamp0Diff, difRedVal, difGreenVal, difBlueVal);   // diffuse
+  // gl.uniform3f(u_Lamp0Spec, specRedVal, specGreenVal, specBlueVal);   // Specular
+
+
+  // // Position the second light Source in World coords:
+  gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
+  // Set its light output:  
+  gl.uniform3f(u_Lamp1Amb,  headLightAmbRed, headLightAmbGreen, headLightAmbBlue);   // ambient
+  gl.uniform3f(u_Lamp1Diff, headLightDifRed, headLightDifGreen, headLightDifBlue);   // diffuse
+  gl.uniform3f(u_Lamp1Spec, headLightSpecRed, headLightSpecGreen, headLightSpecBlue);   // Specular
 
   // Set the Phong materials' reflectance:
   gl.uniform3f(u_Ke, 0.0, 0.0, 0.0);        // Ke emissive
@@ -762,8 +762,7 @@ function keydown(ev, gl, u_ModelMatrix, ModelMatrix) {
         g_EyeY -= constDisp;
         g_EyePosY -= constDisp;
     }
-    else { return; } // Prevent the unnecessary drawing  
-    gl.uniform4f(u_eyePosWorld, g_EyeX,g_EyeY,g_EyeZ, 1); // adjust for different eye posiit
+    else { return; } // Prevent the unnecessary drawing
     draw(gl, u_ModelMatrix, ModelMatrix);
 }
 
@@ -924,13 +923,13 @@ function draw(gl, u_ModelMatrix, ModelMatrix) {
   var u_Lamp0Diff = gl.getUniformLocation(gl.program,   'u_Lamp0Diff');
   var u_Lamp0Spec = gl.getUniformLocation(gl.program,   'u_Lamp0Spec');
 
-  gl.uniform3f(u_Lamp0Amb, ambRedVal, ambGreenVal, ambBlueVal);   // Ambient
-  gl.uniform3f(u_Lamp0Diff, difRedVal, difGreenVal, difBlueVal);   // Ambient
-  gl.uniform3f(u_Lamp0Spec, specRedVal, specGreenVal, specBlueVal);   // Ambient
+  // gl.uniform3f(u_Lamp0Amb, ambRedVal, ambGreenVal, ambBlueVal);   // Ambient
+  // gl.uniform3f(u_Lamp0Diff, difRedVal, difGreenVal, difBlueVal);   // Ambient
+  // gl.uniform3f(u_Lamp0Spec, specRedVal, specGreenVal, specBlueVal);   // Ambient
 
   // adjust headlight position
-  // var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
-  // gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
+  var u_Lamp1Pos  = gl.getUniformLocation(gl.program,   'u_Lamp1Pos');
+  gl.uniform4f(u_Lamp1Pos, g_EyeX, g_EyeY, g_EyeZ, 1.0);
 
 
 
